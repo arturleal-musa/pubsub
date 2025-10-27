@@ -12,8 +12,8 @@ const createPayloadBodySchema: JSONSchemaType<CreatePayload> = {
   required: ['name', 'age'],
   additionalProperties: false,
   properties: {
-    name: { type: 'string', minLength: 1, pattern: '^[A-Za-zÀ-ÿ]+$' },
-    age: { type: 'number', minimum: 1 }
+    name: { type: 'string', minLength: 1, maxLength: 80,  pattern: '^[A-Za-zÀ-ÿ]+$' },
+    age: { type: 'number', minimum: 1, maximum: 110 }
   }
 }
 

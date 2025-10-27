@@ -18,6 +18,10 @@ For production mode
 
 Run the test cases.
 
+### Swagger UI
+
+After starting the server, access [http://localhost:3000/docs](http://localhost:3000/docs) to open the Swagger UI generated from the Fastify route schemas.
+
 ## Learn More
 
 To learn Fastify, check out the [Fastify documentation](https://fastify.dev/docs/latest/).
