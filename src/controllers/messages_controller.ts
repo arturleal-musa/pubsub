@@ -1,29 +1,24 @@
-import { FastifyInstance } from 'fastify'
-import { CreatePayload, createPayloadSchema } from '../schemas/messages'
+import { FastifyInstance, FastifyRequest } from 'fastify';
+import { BaseController } from './base_controller';
+import { HttpResponse } from '../errors/http_response';
+import { CreatePayload, createPayloadSchema } from '../schemas/messages';
 
-class MessagesController {
-  constructor(private readonly fastify: FastifyInstance) {
-    this.registerRoutes()
+export class MessagesController extends BaseController {
+  constructor(private readonly app: FastifyInstance) {
+    super();
+    this.registerRoutes();
   }
 
-  private registerRoutes(): void {
-    this.message()
+  private registerRoutes() {
+    this.app.post<{ Body: CreatePayload }>('/messages', {
+      schema: createPayloadSchema ,
+      handler: this.routeHandler(),
+    });
   }
 
-  private message(): void {
-    this.fastify.post<{ Body: CreatePayload }>(
-      '/messages',
-      { schema: createPayloadSchema },
-      async (request, reply) => {
-        const { name, age } = request.body
-
-        return reply.status(201).send({
-          name,
-          age
-        })
-      }
-    )
+  protected async handle(request: FastifyRequest<{ Body: CreatePayload }>) {
+    const { name, age } = request.body;
+    const message = { name, age };
+    return HttpResponse.created(message);
   }
 }
-
-export default MessagesController

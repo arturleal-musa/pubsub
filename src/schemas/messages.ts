@@ -6,13 +6,46 @@ export type CreatePayload = {
   age: number
 }
 
-export const createPayloadBodySchema: JSONSchemaType<CreatePayload> = {
+type JsonSchemaWithMessage<T> = JSONSchemaType<T> & {
+  errorMessage?: Record<string, unknown> | string
+}
+
+const nameSchema: JsonSchemaWithMessage<CreatePayload['name']> = {
+  type: 'string',
+  minLength: 2,
+  maxLength: 80,
+  pattern: '^[A-Za-zÀ-ÿ]+$',
+  errorMessage: {
+    minLength: 'Nome muito curto',
+    maxLength: 'Nome muito longo',
+    pattern: 'Nome contém caracteres inválidos'
+  }
+}
+
+const ageSchema: JsonSchemaWithMessage<CreatePayload['age']> = {
+  type: 'number',
+  minimum: 1,
+  maximum: 99,
+  errorMessage: {
+    minimum: 'Idade muito baixa',
+    maximum: 'Idade muito alta'
+  }
+}
+
+export const createPayloadBodySchema: JsonSchemaWithMessage<CreatePayload> = {
   type: 'object',
   required: ['name', 'age'],
   additionalProperties: false,
   properties: {
-    name: { type: 'string', minLength: 1, maxLength: 80, pattern: '^[A-Za-zÀ-ÿ]+$' },
-    age: { type: 'number', minimum: 1, maximum: 110 }
+    name: nameSchema,
+    age: ageSchema
+  },
+  errorMessage: {
+    required: {
+      name: 'Nome é obrigatório',
+      age: 'Idade é obrigatória'
+    },
+    additionalProperties: 'Campos extras não são permitidos'
   }
 }
 
@@ -22,10 +55,18 @@ export const createPayloadSchema: FastifySchema = {
     201: {
       type: 'object',
       properties: {
-        name: { type: 'string' },
-        age: { type: 'number' }
+        success: { type: 'boolean', const: true },
+        data: {
+          type: 'object',
+          required: ['name', 'age'],
+          additionalProperties: false,
+          properties: {
+            name: { type: 'string' },
+            age: { type: 'number' }
+          }
+        }
       },
-      required: ['name', 'age'],
+      required: ['success', 'data'],
       additionalProperties: false
     }
   }
